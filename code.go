@@ -74,3 +74,7 @@ func ReadHighByteHighNibble(ins Instruction) uint8 {
 func ReadLowByteHighNibble(ins Instruction) uint8 {
 	return uint8(ins[1]) >> 4
 }
+
+func ReadHighestByte(ins Instruction) uint8 {
+	return uint8(ins[0])
+}

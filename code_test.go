@@ -154,3 +154,25 @@ func TestHighByteHighNibble(t *testing.T) {
 		}
 	}
 }
+
+func TestHighestByte(t *testing.T) {
+	tests := []struct {
+		input          [2]byte
+		expectedResult uint8
+	}{
+		{[2]byte{0xff, 0xff}, 255},
+		{[2]byte{0x00, 0xff}, 0},
+		{[2]byte{0xff, 0x01}, 255},
+		{[2]byte{0xfa, 0x0f}, 250},
+		{[2]byte{0x01, 0xa0}, 1},
+		{[2]byte{0xaf, 0xa0}, 175},
+	}
+
+	for _, tt := range tests {
+		actualValue := ReadHighestByte(tt.input)
+
+		if actualValue != tt.expectedResult {
+			t.Errorf("Wrong value, expected=%d, got=%d", tt.expectedResult, actualValue)
+		}
+	}
+}
