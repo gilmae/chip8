@@ -22,9 +22,9 @@ const (
 	RET
 	JP
 	CALL
-	// SE  // Skip if equal to byte
-	// SNE // Skip in not equal to byte
-	// SRE // Skip If registers equal
+	SE  // Skip if equal to byte
+	SNE // Skip in not equal to byte
+	SRE // Skip If registers equal
 	// LD  // Load to register
 	// ADD
 	// LDR
@@ -36,7 +36,7 @@ const (
 	// SHR
 	// SUBN
 	// SHL
-	// SRNE // Skip uf registers not equal
+	SRNE // Skip if registers not equal
 	// LDI  // Load value to Instruction Pointer register
 	// JP0  // Jump to value + V0
 	// RND
@@ -60,6 +60,10 @@ var definitions = map[Opcode]*Definition{
 	RET:  {"RET", []int{}},
 	JP:   {"JP", []int{12}},
 	CALL: {"CALL", []int{12}},
+	SE:   {"SE", []int{4, 8}},
+	SNE:  {"SNE", []int{4, 8}},
+	SRE:  {"SRE", []int{4, 4}},
+	SRNE: {"SRNE", []int{4, 4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -87,12 +91,14 @@ func ParseOpcode(ins Instructions) Opcode {
 		return JP
 	case 0x2:
 		return CALL
-		// case 0x3:
-		// 	return SE
-		// case 0x4:
-		// 	return SNE
-		// case 0x5:
-		// 	return SRE
+	case 0x3:
+		return SE
+	case 0x4:
+		return SNE
+	case 0x5:
+		return SRE
+	case 0x9:
+		return SRNE
 		// case 0x6:
 		// 	return LD
 		// case 0x7:

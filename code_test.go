@@ -14,6 +14,10 @@ func TestParseOpcode(t *testing.T) {
 		{[]byte{0x00, 0xee}, RET},
 		{[]byte{0x11, 0x23}, JP},
 		{[]byte{0x21, 0x23}, CALL},
+		{[]byte{0x31, 0x23}, SE},
+		{[]byte{0x41, 0x23}, SNE},
+		{[]byte{0x51, 0x23}, SRE},
+		{[]byte{0x91, 0x23}, SRNE},
 	}
 
 	for _, tt := range tests {
@@ -35,13 +39,17 @@ func TestInstructionString(t *testing.T) {
 		{[]byte{0x00, 0xee}, "0000 RET\n"},
 		{[]byte{0x11, 0x23}, "0000 JP 291\n"},
 		{[]byte{0x21, 0x23}, "0000 CALL 291\n"},
+		{[]byte{0x31, 0x23}, "0000 SE 1 35\n"},
+		{[]byte{0x41, 0x23}, "0000 SNE 1 35\n"},
+		{[]byte{0x51, 0x23}, "0000 SRE 1 2\n"},
+		{[]byte{0x91, 0x23}, "0000 SRNE 1 2\n"},
 	}
 
 	for _, tt := range tests {
 		insString := tt.input.String()
 
 		if insString != tt.expectedString {
-			t.Errorf("instruction wrongly formatted, want=%s, got=%s", tt.expectedString, insString)
+			t.Errorf("instruction wrongly formatted, want=%s\n got=%s", tt.expectedString, insString)
 		}
 	}
 }

@@ -53,7 +53,32 @@ func (c *cpu) Tick() error {
 			return err
 		}
 		c.pc = addr
+	case SE:
+		val := ReadUint8(ins)
+		register := ReadHighByteNibble(ins)
+		if c.registers[register] == val {
+			c.pc += 2
+		}
+	case SNE:
+		val := ReadUint8(ins)
+		register := ReadHighByteNibble(ins)
+		if c.registers[register] != val {
+			c.pc += 2
+		}
+	case SRE:
+		xregister := ReadHighByteNibble(ins)
+		yregister := ReadLowByteHighNibble(ins)
 
+		if c.registers[xregister] == c.registers[yregister] {
+			c.pc += 2
+		}
+	case SRNE:
+		xregister := ReadHighByteNibble(ins)
+		yregister := ReadLowByteHighNibble(ins)
+
+		if c.registers[xregister] != c.registers[yregister] {
+			c.pc += 2
+		}
 	}
 	return nil
 }
