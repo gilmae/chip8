@@ -12,7 +12,7 @@ type Opcode byte
 
 type Definition struct {
 	Name          string
-	OperandWidths []int
+	OperandWidths []int // bits
 }
 
 const (
@@ -20,7 +20,7 @@ const (
 	SYS
 	CLS
 	RET
-	// JP
+	JP
 	// CALL
 	// SE  // Skip if equal to byte
 	// SNE // Skip in not equal to byte
@@ -58,6 +58,7 @@ var definitions = map[Opcode]*Definition{
 	SYS: {"SYS", []int{12}},
 	CLS: {"CLS", []int{}},
 	RET: {"RET", []int{}},
+	JP:  {"JP", []int{12}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -81,8 +82,8 @@ func ParseOpcode(ins Instructions) Opcode {
 		default: // 0nnn - SYS addr. Presumably will be unuused
 			return SYS
 		}
-		// case 0x1:
-		// 	return JP
+	case 0x1:
+		return JP
 		// case 0x2:
 		// 	return CALL
 		// case 0x3:
@@ -178,7 +179,7 @@ func (ins Instructions) String() string {
 
 	i := 0
 	for i < len(ins) {
-		op := ins.ParseOpcode()
+		op := ParseOpcode(ins)
 		def, err := Lookup(byte(op))
 
 		if err != nil {

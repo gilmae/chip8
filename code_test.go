@@ -12,6 +12,7 @@ func TestParseOpcode(t *testing.T) {
 		{[]byte{0x01, 0x23}, SYS},
 		{[]byte{0x00, 0xe0}, CLS},
 		{[]byte{0x00, 0xee}, RET},
+		{[]byte{0x11, 0x23}, JP},
 	}
 
 	for _, tt := range tests {
@@ -31,6 +32,7 @@ func TestInstructionString(t *testing.T) {
 		{[]byte{0x01, 0x23}, "0000 SYS 291\n"},
 		{[]byte{0x00, 0xe0}, "0000 CLS\n"},
 		{[]byte{0x00, 0xee}, "0000 RET\n"},
+		{[]byte{0x11, 0x23}, "0000 JP 291\n"},
 	}
 
 	for _, tt := range tests {

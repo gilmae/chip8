@@ -43,6 +43,9 @@ func (c *cpu) Tick() {
 			panic(err)
 		}
 		c.pc = val
+	case JP:
+		addr := ReadUint12(ins)
+		c.pc = addr
 	}
 }
 
