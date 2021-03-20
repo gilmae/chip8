@@ -25,9 +25,9 @@ const (
 	SE  // Skip if equal to byte
 	SNE // Skip in not equal to byte
 	SRE // Skip If registers equal
-	// LD  // Load to register
+	LD  // Load to register
 	// ADD
-	// LDR
+	LDR
 	// OR // Bitwise OR
 	// AND
 	// XOR
@@ -37,33 +37,42 @@ const (
 	// SUBN
 	// SHL
 	SRNE // Skip if registers not equal
-	// LDI  // Load value to Instruction Pointer register
+	LDI  // Load value to Instruction Pointer register
 	// JP0  // Jump to value + V0
 	// RND
 	// DRW
 	// SKP
 	// SKNP
-	// LDDT  // Load delay timer to register
+	LDVxDT // Load delay timer to register
 	// LGKP  // Load keypress to register
-	// LDTDT // Load register to delay time
-	// LDST  // Load register to sound timer
+	LDDTVx // Load register to delay time
+	LDSTVx // Load register to sound timer
 	// ADDI  // Add register to Instruction Pointer
 	// LDF   // Set Instruction Pointer to location of sprite
-	// LDB   // Load BCD to I, I+1, I+2
-	// LDR   // Load registers to memory starting at I
-	// LDV   // Read memory into registers, starting at I
+	LDB   // Load BCD to I, I+1, I+2
+	LDIVx // Load registers to memory starting at I
+	LDVxI // Read memory into registers, starting at I
 )
 
 var definitions = map[Opcode]*Definition{
-	SYS:  {"SYS", []int{12}},
-	CLS:  {"CLS", []int{}},
-	RET:  {"RET", []int{}},
-	JP:   {"JP", []int{12}},
-	CALL: {"CALL", []int{12}},
-	SE:   {"SE", []int{4, 8}},
-	SNE:  {"SNE", []int{4, 8}},
-	SRE:  {"SRE", []int{4, 4}},
-	SRNE: {"SRNE", []int{4, 4}},
+	SYS:    {"SYS", []int{12}},
+	CLS:    {"CLS", []int{}},
+	RET:    {"RET", []int{}},
+	JP:     {"JP", []int{12}},
+	CALL:   {"CALL", []int{12}},
+	SE:     {"SE", []int{4, 8}},
+	SNE:    {"SNE", []int{4, 8}},
+	SRE:    {"SRE", []int{4, 4}},
+	SRNE:   {"SRNE", []int{4, 4}},
+	LD:     {"LD", []int{4, 8}},
+	LDR:    {"LDR", []int{4, 4}},
+	LDI:    {"LDI", []int{12}},
+	LDVxDT: {"LDVxDT", []int{4}},
+	LDDTVx: {"LDDTVx", []int{4}},
+	LDSTVx: {"LDSTVx", []int{4}},
+	LDB:    {"LDB", []int{4}},
+	LDIVx:  {"LDIVx", []int{4}},
+	LDVxI:  {"LDVxI", []int{4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -97,26 +106,45 @@ func ParseOpcode(ins Instructions) Opcode {
 		return SNE
 	case 0x5:
 		return SRE
+	case 0x6:
+		return LD
 	case 0x9:
 		return SRNE
-		// case 0x6:
-		// 	return LD
-		// case 0x7:
-		// 	return ADD
-		// case 0x8:
-		// 	nibble := ReadNibble(ins)
-		// 	switch nibble {
-		// 	case 0x0:
-		// 		return LDR
-		// 	case 0x1:
-		// 		return OR
-		// 	case 0x2:
-		// 		return AND
-		// 	case 0x3:
-		// 		return XOR
-		// 	case 0x4:
 
-		// 	}
+	// case 0x7:
+	// 	return ADD
+	case 0x8:
+		nibble := ReadNibble(ins)
+		switch nibble {
+		case 0x0:
+			return LDR
+		// case 0x1:
+		// 	return OR
+		// case 0x2:
+		// 	return AND
+		// case 0x3:
+		// 	return XOR
+		case 0x4:
+
+		}
+	case 0xa:
+		return LDI
+	case 0xf:
+		lowbyte := ReadUint8(ins)
+		switch lowbyte {
+		case 0x07:
+			return LDVxDT
+		case 0x15:
+			return LDDTVx
+		case 0x18:
+			return LDSTVx
+		case 0x33:
+			return LDB
+		case 0x55:
+			return LDIVx
+		case 0x65:
+			return LDVxI
+		}
 	}
 	return UNKNOWN
 }

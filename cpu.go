@@ -79,6 +79,38 @@ func (c *cpu) Tick() error {
 		if c.registers[xregister] != c.registers[yregister] {
 			c.pc += 2
 		}
+	case LD:
+		register := ReadHighByteNibble(ins)
+		val := ReadUint8(ins)
+		c.registers[register] = val
+	case LDI:
+		addr := ReadUint12(ins)
+		c.I = addr
+	case LDVxDT:
+		register := ReadHighByteNibble(ins)
+		c.registers[register] = c.delay
+	case LDDTVx:
+		register := ReadHighByteNibble(ins)
+		c.delay = c.registers[register]
+	case LDSTVx:
+		register := ReadHighByteNibble(ins)
+		c.sound = c.registers[register]
+	case LDB:
+		register := ReadHighByteNibble(ins)
+		value := int(c.registers[register])
+		c.memory[c.I] = byte(value / 100)
+		c.memory[c.I+1] = byte((value % 100) / 10)
+		c.memory[c.I+2] = byte(value % 10)
+	case LDIVx:
+		register := ReadHighByteNibble(ins)
+		for idx := 0; idx <= int(register); idx++ {
+			c.memory[int(c.I)+idx] = c.registers[idx]
+		}
+	case LDVxI:
+		register := ReadHighByteNibble(ins)
+		for idx := 0; idx <= int(register); idx++ {
+			c.registers[idx] = c.memory[int(c.I)+idx]
+		}
 	}
 	return nil
 }

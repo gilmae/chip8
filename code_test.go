@@ -17,7 +17,16 @@ func TestParseOpcode(t *testing.T) {
 		{[]byte{0x31, 0x23}, SE},
 		{[]byte{0x41, 0x23}, SNE},
 		{[]byte{0x51, 0x23}, SRE},
+		{[]byte{0x61, 0x23}, LD},
+		{[]byte{0x81, 0x20}, LDR},
 		{[]byte{0x91, 0x23}, SRNE},
+		{[]byte{0xA1, 0x23}, LDI},
+		{[]byte{0xf1, 0x07}, LDVxDT},
+		{[]byte{0xf1, 0x15}, LDDTVx},
+		{[]byte{0xf1, 0x18}, LDSTVx},
+		{[]byte{0xf1, 0x33}, LDB},
+		{[]byte{0xf2, 0x55}, LDIVx},
+		{[]byte{0xf2, 0x65}, LDVxI},
 	}
 
 	for _, tt := range tests {
@@ -42,7 +51,16 @@ func TestInstructionString(t *testing.T) {
 		{[]byte{0x31, 0x23}, "0000 SE 1 35\n"},
 		{[]byte{0x41, 0x23}, "0000 SNE 1 35\n"},
 		{[]byte{0x51, 0x23}, "0000 SRE 1 2\n"},
+		{[]byte{0x61, 0x23}, "0000 LD 1 35\n"},
+		{[]byte{0x81, 0x20}, "0000 LDR 1 2\n"},
 		{[]byte{0x91, 0x23}, "0000 SRNE 1 2\n"},
+		{[]byte{0xA1, 0x23}, "0000 LDI 291\n"},
+		{[]byte{0xf1, 0x07}, "0000 LDVxDT 1\n"},
+		{[]byte{0xf1, 0x15}, "0000 LDDTVx 1\n"},
+		{[]byte{0xf1, 0x18}, "0000 LDSTVx 1\n"},
+		{[]byte{0xf1, 0x33}, "0000 LDB 1\n"},
+		{[]byte{0xf2, 0x55}, "0000 LDIVx 2\n"},
+		{[]byte{0xf2, 0x65}, "0000 LDVxI 2\n"},
 	}
 
 	for _, tt := range tests {
