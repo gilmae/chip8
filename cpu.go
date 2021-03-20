@@ -23,7 +23,7 @@ func NewCpu() *cpu {
 	}
 }
 
-func (c *cpu) Tick() {
+func (c *cpu) Tick() error {
 	ins := c.memory[c.pc : c.pc+2]
 	c.pc += 2
 	op := ParseOpcode(ins)
@@ -40,13 +40,22 @@ func (c *cpu) Tick() {
 	case RET:
 		val, err := c.pop()
 		if err != nil {
-			panic(err)
+			return err
 		}
 		c.pc = val
 	case JP:
 		addr := ReadUint12(ins)
 		c.pc = addr
+	case CALL:
+		addr := ReadUint12(ins)
+		err := c.push(c.pc)
+		if err != nil {
+			return err
+		}
+		c.pc = addr
+
 	}
+	return nil
 }
 
 func (c *cpu) pop() (uint16, error) {
@@ -56,4 +65,13 @@ func (c *cpu) pop() (uint16, error) {
 	v := c.stack[c.sp-1]
 	c.sp--
 	return v, nil
+}
+
+func (c *cpu) push(value uint16) error {
+	if int(c.sp) >= len(c.stack) {
+		return fmt.Errorf("stack overflow")
+	}
+	c.stack[c.sp] = value
+	c.sp++
+	return nil
 }

@@ -21,7 +21,7 @@ const (
 	CLS
 	RET
 	JP
-	// CALL
+	CALL
 	// SE  // Skip if equal to byte
 	// SNE // Skip in not equal to byte
 	// SRE // Skip If registers equal
@@ -55,10 +55,11 @@ const (
 )
 
 var definitions = map[Opcode]*Definition{
-	SYS: {"SYS", []int{12}},
-	CLS: {"CLS", []int{}},
-	RET: {"RET", []int{}},
-	JP:  {"JP", []int{12}},
+	SYS:  {"SYS", []int{12}},
+	CLS:  {"CLS", []int{}},
+	RET:  {"RET", []int{}},
+	JP:   {"JP", []int{12}},
+	CALL: {"CALL", []int{12}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -84,8 +85,8 @@ func ParseOpcode(ins Instructions) Opcode {
 		}
 	case 0x1:
 		return JP
-		// case 0x2:
-		// 	return CALL
+	case 0x2:
+		return CALL
 		// case 0x3:
 		// 	return SE
 		// case 0x4:
@@ -185,12 +186,12 @@ func (ins Instructions) String() string {
 		if err != nil {
 			fmt.Fprintf(&out, "ERROR: %s\n", err)
 			continue
+		} else {
+
+			operands := ReadOperands(def, ins)
+
+			fmt.Fprintf(&out, "%04d %s\n", i, ins.fmtInstruction(def, operands))
 		}
-
-		operands := ReadOperands(def, ins)
-
-		fmt.Fprintf(&out, "%04d %s\n", i, ins.fmtInstruction(def, operands))
-
 		i += 2
 	}
 
