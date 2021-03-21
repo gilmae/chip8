@@ -1,6 +1,9 @@
 package chip8
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type cpu struct {
 	memory    [4096]byte
@@ -174,7 +177,14 @@ func (c *cpu) Tick() error {
 		}
 
 		c.registers[register] = byte(c.registers[register] << 1)
-
+	case JPV0:
+		addr := ReadUint12(ins)
+		c.pc = uint16(c.registers[0]) + addr
+	case RND:
+		register := ReadHighByteNibble(ins)
+		val := ReadUint8(ins)
+		random := uint8(rand.Intn(255))
+		c.registers[register] = random & val
 	}
 	return nil
 }

@@ -38,8 +38,8 @@ const (
 	SHL  // Shift Left
 	SRNE // Skip if registers not equal
 	LDI  // Load value to Instruction Pointer register
-	// JP0  // Jump to value + V0
-	// RND
+	JPV0 // Jump to value + V0
+	RND
 	// DRW
 	// SKP
 	// SKNP
@@ -83,6 +83,8 @@ var definitions = map[Opcode]*Definition{
 	SUBN:    {"SUBN", []int{4, 4}},
 	SHR:     {"SHR", []int{4}},
 	SHL:     {"SHL", []int{4}},
+	JPV0:    {"JPV0", []int{12}},
+	RND:     {"RND", []int{4, 8}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -146,6 +148,10 @@ func ParseOpcode(ins Instructions) Opcode {
 		return SRNE
 	case 0xa:
 		return LDI
+	case 0xb:
+		return JPV0
+	case 0xc:
+		return RND
 	case 0xf:
 		lowbyte := ReadUint8(ins)
 		switch lowbyte {
