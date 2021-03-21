@@ -151,7 +151,7 @@ func (c *cpu) Tick() error {
 		if vx > vy {
 			c.registers[0xf] = 1
 		}
-		c.registers[registerx] = vx - vy
+		c.registers[registerx] = byte(vx - vy)
 	case SUBN:
 		registerx := ReadHighByteNibble(ins)
 		registery := ReadLowByteHighNibble(ins)
@@ -160,7 +160,21 @@ func (c *cpu) Tick() error {
 		if vy > vx {
 			c.registers[0xf] = 1
 		}
-		c.registers[registerx] = vy - vx
+		c.registers[registerx] = byte(vy - vx)
+	case SHR:
+		register := ReadHighByteNibble(ins)
+		c.registers[0xf] = c.registers[register] & 0x1
+		c.registers[register] = c.registers[register] >> 1
+	case SHL:
+		register := ReadHighByteNibble(ins)
+		if c.registers[register] >= 0x8 {
+			c.registers[0xf] = 1
+		} else {
+			c.registers[0xf] = 0
+		}
+
+		c.registers[register] = byte(c.registers[register] << 1)
+
 	}
 	return nil
 }

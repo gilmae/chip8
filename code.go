@@ -33,9 +33,9 @@ const (
 	XOR
 	ADDVxVy
 	SUB
-	// SHR
+	SHR // Shift Right
 	SUBN
-	// SHL
+	SHL  // Shift Left
 	SRNE // Skip if registers not equal
 	LDI  // Load value to Instruction Pointer register
 	// JP0  // Jump to value + V0
@@ -81,6 +81,8 @@ var definitions = map[Opcode]*Definition{
 	XOR:     {"XOR", []int{4, 4}},
 	SUB:     {"SUB", []int{4, 4}},
 	SUBN:    {"SUBN", []int{4, 4}},
+	SHR:     {"SHR", []int{4}},
+	SHL:     {"SHL", []int{4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -133,8 +135,12 @@ func ParseOpcode(ins Instructions) Opcode {
 			return ADDVxVy
 		case 0x5:
 			return SUB
+		case 0x6:
+			return SHR
 		case 0x7:
 			return SUBN
+		case 0xe:
+			return SHL
 		}
 	case 0x9:
 		return SRNE
