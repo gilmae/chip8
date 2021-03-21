@@ -27,10 +27,10 @@ const (
 	SRE // Skip If registers equal
 	LD  // Load to register
 	ADD
-	LDR
-	// OR // Bitwise OR
-	// AND
-	// XOR
+	LDVxVy
+	OR // Bitwise OR
+	AND
+	XOR
 	ADDVxVy
 	// SUB
 	// SHR
@@ -65,7 +65,7 @@ var definitions = map[Opcode]*Definition{
 	SRE:     {"SRE", []int{4, 4}},
 	SRNE:    {"SRNE", []int{4, 4}},
 	LD:      {"LD", []int{4, 8}},
-	LDR:     {"LDR", []int{4, 4}},
+	LDVxVy:  {"LDVxVy", []int{4, 4}},
 	LDI:     {"LDI", []int{12}},
 	LDVxDT:  {"LDVxDT", []int{4}},
 	LDDTVx:  {"LDDTVx", []int{4}},
@@ -76,6 +76,9 @@ var definitions = map[Opcode]*Definition{
 	ADD:     {"ADD", []int{4, 8}},
 	ADDVxVy: {"ADDVxVy", []int{4, 4}},
 	ADDIVx:  {"ADDIVx", []int{4}},
+	OR:      {"OR", []int{4, 4}},
+	AND:     {"AND", []int{4, 4}},
+	XOR:     {"XOR", []int{4, 4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -117,13 +120,13 @@ func ParseOpcode(ins Instructions) Opcode {
 		nibble := ReadNibble(ins)
 		switch nibble {
 		case 0x0:
-			return LDR
-		// case 0x1:
-		// 	return OR
-		// case 0x2:
-		// 	return AND
-		// case 0x3:
-		// 	return XOR
+			return LDVxVy
+		case 0x1:
+			return OR
+		case 0x2:
+			return AND
+		case 0x3:
+			return XOR
 		case 0x4:
 			return ADDVxVy
 		}

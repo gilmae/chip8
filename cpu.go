@@ -79,6 +79,11 @@ func (c *cpu) Tick() error {
 		register := ReadHighByteNibble(ins)
 		val := ReadUint8(ins)
 		c.registers[register] = val
+	case LDVxVy:
+		xregister := ReadHighByteNibble(ins)
+		yregister := ReadLowByteHighNibble(ins)
+
+		c.registers[xregister] = c.registers[yregister]
 	case LDI:
 		addr := ReadUint12(ins)
 		c.I = addr
@@ -126,6 +131,18 @@ func (c *cpu) Tick() error {
 	case ADDIVx:
 		register := ReadHighByteNibble(ins)
 		c.I += uint16(c.registers[register])
+	case OR:
+		registerx := ReadHighByteNibble(ins)
+		registery := ReadLowByteHighNibble(ins)
+		c.registers[registerx] |= c.registers[registery]
+	case AND:
+		registerx := ReadHighByteNibble(ins)
+		registery := ReadLowByteHighNibble(ins)
+		c.registers[registerx] &= c.registers[registery]
+	case XOR:
+		registerx := ReadHighByteNibble(ins)
+		registery := ReadLowByteHighNibble(ins)
+		c.registers[registerx] ^= c.registers[registery]
 	}
 	return nil
 }
