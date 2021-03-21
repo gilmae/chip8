@@ -26,12 +26,12 @@ const (
 	SNE // Skip in not equal to byte
 	SRE // Skip If registers equal
 	LD  // Load to register
-	// ADD
+	ADD
 	LDR
 	// OR // Bitwise OR
 	// AND
 	// XOR
-	// ADDR
+	ADDVxVy
 	// SUB
 	// SHR
 	// SUBN
@@ -47,7 +47,7 @@ const (
 	// LGKP  // Load keypress to register
 	LDDTVx // Load register to delay time
 	LDSTVx // Load register to sound timer
-	// ADDI  // Add register to Instruction Pointer
+	ADDIVx // Add register to Instruction Pointer
 	// LDF   // Set Instruction Pointer to location of sprite
 	LDB   // Load BCD to I, I+1, I+2
 	LDIVx // Load registers to memory starting at I
@@ -55,24 +55,27 @@ const (
 )
 
 var definitions = map[Opcode]*Definition{
-	SYS:    {"SYS", []int{12}},
-	CLS:    {"CLS", []int{}},
-	RET:    {"RET", []int{}},
-	JP:     {"JP", []int{12}},
-	CALL:   {"CALL", []int{12}},
-	SE:     {"SE", []int{4, 8}},
-	SNE:    {"SNE", []int{4, 8}},
-	SRE:    {"SRE", []int{4, 4}},
-	SRNE:   {"SRNE", []int{4, 4}},
-	LD:     {"LD", []int{4, 8}},
-	LDR:    {"LDR", []int{4, 4}},
-	LDI:    {"LDI", []int{12}},
-	LDVxDT: {"LDVxDT", []int{4}},
-	LDDTVx: {"LDDTVx", []int{4}},
-	LDSTVx: {"LDSTVx", []int{4}},
-	LDB:    {"LDB", []int{4}},
-	LDIVx:  {"LDIVx", []int{4}},
-	LDVxI:  {"LDVxI", []int{4}},
+	SYS:     {"SYS", []int{12}},
+	CLS:     {"CLS", []int{}},
+	RET:     {"RET", []int{}},
+	JP:      {"JP", []int{12}},
+	CALL:    {"CALL", []int{12}},
+	SE:      {"SE", []int{4, 8}},
+	SNE:     {"SNE", []int{4, 8}},
+	SRE:     {"SRE", []int{4, 4}},
+	SRNE:    {"SRNE", []int{4, 4}},
+	LD:      {"LD", []int{4, 8}},
+	LDR:     {"LDR", []int{4, 4}},
+	LDI:     {"LDI", []int{12}},
+	LDVxDT:  {"LDVxDT", []int{4}},
+	LDDTVx:  {"LDDTVx", []int{4}},
+	LDSTVx:  {"LDSTVx", []int{4}},
+	LDB:     {"LDB", []int{4}},
+	LDIVx:   {"LDIVx", []int{4}},
+	LDVxI:   {"LDVxI", []int{4}},
+	ADD:     {"ADD", []int{4, 8}},
+	ADDVxVy: {"ADDVxVy", []int{4, 4}},
+	ADDIVx:  {"ADDIVx", []int{4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -108,11 +111,8 @@ func ParseOpcode(ins Instructions) Opcode {
 		return SRE
 	case 0x6:
 		return LD
-	case 0x9:
-		return SRNE
-
-	// case 0x7:
-	// 	return ADD
+	case 0x7:
+		return ADD
 	case 0x8:
 		nibble := ReadNibble(ins)
 		switch nibble {
@@ -125,8 +125,10 @@ func ParseOpcode(ins Instructions) Opcode {
 		// case 0x3:
 		// 	return XOR
 		case 0x4:
-
+			return ADDVxVy
 		}
+	case 0x9:
+		return SRNE
 	case 0xa:
 		return LDI
 	case 0xf:
@@ -138,6 +140,8 @@ func ParseOpcode(ins Instructions) Opcode {
 			return LDDTVx
 		case 0x18:
 			return LDSTVx
+		case 0x1e:
+			return ADDIVx
 		case 0x33:
 			return LDB
 		case 0x55:

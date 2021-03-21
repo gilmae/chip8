@@ -27,11 +27,7 @@ func (c *cpu) Tick() error {
 	ins := c.memory[c.pc : c.pc+2]
 	c.pc += 2
 	op := ParseOpcode(ins)
-	// def, err := Lookup(byte(op))
-	// if err != nil {
-	// 	return
-	// }
-	// operands := ReadOperands(def, ins)
+
 	switch op {
 	case SYS:
 		// nothing, ignore
@@ -111,6 +107,25 @@ func (c *cpu) Tick() error {
 		for idx := 0; idx <= int(register); idx++ {
 			c.registers[idx] = c.memory[int(c.I)+idx]
 		}
+	case ADD:
+		register := ReadHighByteNibble(ins)
+		val := ReadUint8(ins)
+		c.registers[register] += val
+	case ADDVxVy:
+		registerx := ReadHighByteNibble(ins)
+		registery := ReadLowByteHighNibble(ins)
+		value := c.registers[registerx] + c.registers[registery]
+		overflow := 0
+		if value > 255 {
+			overflow = 1
+			value = value & 0xff
+		}
+
+		c.registers[0xf] = byte(overflow)
+		c.registers[registerx] = value
+	case ADDIVx:
+		register := ReadHighByteNibble(ins)
+		c.I += uint16(c.registers[register])
 	}
 	return nil
 }
