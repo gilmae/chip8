@@ -143,6 +143,24 @@ func (c *cpu) Tick() error {
 		registerx := ReadHighByteNibble(ins)
 		registery := ReadLowByteHighNibble(ins)
 		c.registers[registerx] ^= c.registers[registery]
+	case SUB:
+		registerx := ReadHighByteNibble(ins)
+		registery := ReadLowByteHighNibble(ins)
+		vx := c.registers[registerx]
+		vy := c.registers[registery]
+		if vx > vy {
+			c.registers[0xf] = 1
+		}
+		c.registers[registerx] = vx - vy
+	case SUBN:
+		registerx := ReadHighByteNibble(ins)
+		registery := ReadLowByteHighNibble(ins)
+		vx := c.registers[registerx]
+		vy := c.registers[registery]
+		if vy > vx {
+			c.registers[0xf] = 1
+		}
+		c.registers[registerx] = vy - vx
 	}
 	return nil
 }

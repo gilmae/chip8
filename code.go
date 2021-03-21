@@ -32,9 +32,9 @@ const (
 	AND
 	XOR
 	ADDVxVy
-	// SUB
+	SUB
 	// SHR
-	// SUBN
+	SUBN
 	// SHL
 	SRNE // Skip if registers not equal
 	LDI  // Load value to Instruction Pointer register
@@ -79,6 +79,8 @@ var definitions = map[Opcode]*Definition{
 	OR:      {"OR", []int{4, 4}},
 	AND:     {"AND", []int{4, 4}},
 	XOR:     {"XOR", []int{4, 4}},
+	SUB:     {"SUB", []int{4, 4}},
+	SUBN:    {"SUBN", []int{4, 4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -129,6 +131,10 @@ func ParseOpcode(ins Instructions) Opcode {
 			return XOR
 		case 0x4:
 			return ADDVxVy
+		case 0x5:
+			return SUB
+		case 0x7:
+			return SUBN
 		}
 	case 0x9:
 		return SRNE
