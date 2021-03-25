@@ -40,7 +40,7 @@ const (
 	LDI  // Load value to Instruction Pointer register
 	JPV0 // Jump to value + V0
 	RND
-	// DRW
+	DRW
 	// SKP
 	// SKNP
 	LDVxDT // Load delay timer to register
@@ -85,6 +85,7 @@ var definitions = map[Opcode]*Definition{
 	SHL:     {"SHL", []int{4}},
 	JPV0:    {"JPV0", []int{12}},
 	RND:     {"RND", []int{4, 8}},
+	DRW:     {"DRW", []int{4, 4, 4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -152,6 +153,8 @@ func ParseOpcode(ins Instructions) Opcode {
 		return JPV0
 	case 0xc:
 		return RND
+	case 0xd:
+		return DRW
 	case 0xf:
 		lowbyte := ReadUint8(ins)
 		switch lowbyte {

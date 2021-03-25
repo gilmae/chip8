@@ -18,11 +18,14 @@ type cpu struct {
 
 	pc uint16 // Program counter
 	sp uint8  // stack pointer
+
+	d display
 }
 
 func NewCpu() *cpu {
 	return &cpu{
 		pc: 0x200, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
+		d:  NewDisplay(),
 	}
 }
 
@@ -185,6 +188,21 @@ func (c *cpu) Tick() error {
 		val := ReadUint8(ins)
 		random := uint8(rand.Intn(255))
 		c.registers[register] = random & val
+	case DRW:
+		x := int(ReadHighByteNibble(ins))
+		y := int(ReadLowByteHighNibble(ins))
+		sprite_size := ReadNibble(ins)
+		sprite := make([]byte, sprite_size)
+
+		for idx := 0; idx < int(sprite_size); idx++ {
+			sprite[idx] = c.memory[int(c.I)+idx]
+		}
+
+		collision := c.d.DrawPixel(sprite, x, y)
+		if collision {
+			c.registers[0xf] = 1
+		}
+
 	}
 	return nil
 }
