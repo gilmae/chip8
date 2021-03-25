@@ -30,7 +30,7 @@ func (d *display) DrawPixel(pixel []byte, x int, y int) bool {
 		for sprite_row > 0 {
 			if sprite_row%2 == 1 {
 				collision_detected = collision_detected || d.pixels[y+row_offset][(x+bit)%width]
-				d.pixels[y+row_offset][(x+bit)%width] = true
+				d.pixels[y+row_offset][(x+bit)%width] = d.pixels[y+row_offset][(x+bit)%width] != true
 			}
 			sprite_row = sprite_row >> 1
 			bit--

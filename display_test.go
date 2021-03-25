@@ -76,12 +76,32 @@ func TestCollision(t *testing.T) {
 		t.Errorf("expected no collision")
 	}
 
-	collision = d.DrawPixel(input, 1, 1)
+	collision = d.DrawPixel(input, 3, 3)
 
 	if !collision {
 		t.Errorf("expected collision")
 	}
 
+}
+
+func TestPixelsXored(t *testing.T) {
+	input := []byte{0x80}
+	d := NewDisplay()
+	d.DrawPixel(input, 0, 0)
+	d.DrawPixel(input, 0, 0)
+
+	total_actual_pixel_count := 0
+	for y, row := range d.pixels {
+		for x, _ := range row {
+			if d.pixels[y][x] {
+				total_actual_pixel_count++
+			}
+		}
+	}
+
+	if total_actual_pixel_count != 0 {
+		t.Errorf("expected %d pixels on, got %d", 0, total_actual_pixel_count)
+	}
 }
 
 func TestClear(t *testing.T) {
