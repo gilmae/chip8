@@ -37,7 +37,7 @@ func TestDrawPixel(t *testing.T) {
 
 	for _, tt := range tests {
 		d := NewDisplay()
-		d.DrawPixel(tt.input, tt.x, tt.y)
+		d.DrawSprite(tt.input, tt.x, tt.y)
 
 		total_expected_pixel_count := 0
 		total_actual_pixel_count := 0
@@ -69,14 +69,14 @@ func TestDrawPixel(t *testing.T) {
 func TestCollision(t *testing.T) {
 	input := []byte{0xF0, 0x90, 0x90, 0x90, 0xF0}
 	d := NewDisplay()
-	d.DrawPixel(input, 0, 0)
-	collision := d.DrawPixel(input, 10, 10)
+	d.DrawSprite(input, 0, 0)
+	collision := d.DrawSprite(input, 10, 10)
 
 	if collision {
 		t.Errorf("expected no collision")
 	}
 
-	collision = d.DrawPixel(input, 3, 3)
+	collision = d.DrawSprite(input, 3, 3)
 
 	if !collision {
 		t.Errorf("expected collision")
@@ -87,8 +87,8 @@ func TestCollision(t *testing.T) {
 func TestPixelsXored(t *testing.T) {
 	input := []byte{0x80}
 	d := NewDisplay()
-	d.DrawPixel(input, 0, 0)
-	d.DrawPixel(input, 0, 0)
+	d.DrawSprite(input, 0, 0)
+	d.DrawSprite(input, 0, 0)
 
 	total_actual_pixel_count := 0
 	for y, row := range d.pixels {
@@ -107,7 +107,7 @@ func TestPixelsXored(t *testing.T) {
 func TestClear(t *testing.T) {
 	input := []byte{0xF0, 0x90, 0x90, 0x90, 0xF0}
 	d := NewDisplay()
-	d.DrawPixel(input, 0, 0)
+	d.DrawSprite(input, 0, 0)
 	d.Clear()
 
 	total_actual_pixel_count := 0

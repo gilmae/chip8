@@ -6,7 +6,8 @@ const (
 )
 
 type display struct {
-	pixels [][]bool
+	pixels  [][]bool
+	isDirty bool
 }
 
 func NewDisplay() display {
@@ -20,9 +21,10 @@ func (d *display) Clear() {
 	for idx := range d.pixels {
 		d.pixels[idx] = make([]bool, width)
 	}
+	d.isDirty = true
 }
 
-func (d *display) DrawPixel(pixel []byte, x int, y int) bool {
+func (d *display) DrawSprite(pixel []byte, x int, y int) bool {
 	collision_detected := false
 
 	for row_offset, sprite_row := range pixel {
@@ -37,5 +39,6 @@ func (d *display) DrawPixel(pixel []byte, x int, y int) bool {
 		}
 
 	}
+	d.isDirty = true
 	return collision_detected
 }

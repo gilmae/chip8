@@ -198,7 +198,7 @@ func (c *cpu) Tick() error {
 			sprite[idx] = c.memory[int(c.I)+idx]
 		}
 
-		collision := c.d.DrawPixel(sprite, x, y)
+		collision := c.d.DrawSprite(sprite, x, y)
 		if collision {
 			c.registers[0xf] = 1
 		}
