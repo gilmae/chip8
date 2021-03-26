@@ -5,6 +5,10 @@ import (
 	"math/rand"
 )
 
+const (
+	font_start_addr int = 0x50
+)
+
 type cpu struct {
 	memory    [4096]byte
 	registers [16]byte
@@ -23,10 +27,12 @@ type cpu struct {
 }
 
 func NewCpu() *cpu {
-	return &cpu{
+	c := &cpu{
 		pc: 0x200, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
 		d:  NewDisplay(),
 	}
+	c.loadFont()
+	return c
 }
 
 func (c *cpu) Tick() error {
@@ -202,9 +208,17 @@ func (c *cpu) Tick() error {
 		if collision {
 			c.registers[0xf] = 1
 		}
-
+	case LDF:
+		register := ReadHighByteNibble(ins)
+		c.I = uint16(font_start_addr + fontwidth*int(c.registers[register]))
 	}
 	return nil
+}
+
+func (c *cpu) loadFont() {
+	for idx, fontbyte := range fontset {
+		c.memory[font_start_addr+idx] = fontbyte
+	}
 }
 
 func (c *cpu) pop() (uint16, error) {

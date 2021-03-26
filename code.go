@@ -48,10 +48,10 @@ const (
 	LDDTVx // Load register to delay time
 	LDSTVx // Load register to sound timer
 	ADDIVx // Add register to Instruction Pointer
-	// LDF   // Set Instruction Pointer to location of sprite
-	LDB   // Load BCD to I, I+1, I+2
-	LDIVx // Load registers to memory starting at I
-	LDVxI // Read memory into registers, starting at I
+	LDF    // Set Instruction Pointer to location of sprite
+	LDB    // Load BCD to I, I+1, I+2
+	LDIVx  // Load registers to memory starting at I
+	LDVxI  // Read memory into registers, starting at I
 )
 
 var definitions = map[Opcode]*Definition{
@@ -86,6 +86,7 @@ var definitions = map[Opcode]*Definition{
 	JPV0:    {"JPV0", []int{12}},
 	RND:     {"RND", []int{4, 8}},
 	DRW:     {"DRW", []int{4, 4, 4}},
+	LDF:     {"LDF", []int{4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -166,6 +167,8 @@ func ParseOpcode(ins Instructions) Opcode {
 			return LDSTVx
 		case 0x1e:
 			return ADDIVx
+		case 0x29:
+			return LDF
 		case 0x33:
 			return LDB
 		case 0x55:
