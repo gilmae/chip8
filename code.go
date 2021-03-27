@@ -41,10 +41,10 @@ const (
 	JPV0 // Jump to value + V0
 	RND
 	DRW
-	// SKP
-	// SKNP
+	SKP
+	SKNP
 	LDVxDT // Load delay timer to register
-	// LGKP  // Load keypress to register
+	LDK    // Load keypress to register
 	LDDTVx // Load register to delay time
 	LDSTVx // Load register to sound timer
 	ADDIVx // Add register to Instruction Pointer
@@ -87,6 +87,9 @@ var definitions = map[Opcode]*Definition{
 	RND:     {"RND", []int{4, 8}},
 	DRW:     {"DRW", []int{4, 4, 4}},
 	LDF:     {"LDF", []int{4}},
+	LDK:     {"LDK", []int{4}},
+	SKP:     {"SKP", []int{4}},
+	SKNP:    {"SKNP", []int{4}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -156,11 +159,21 @@ func ParseOpcode(ins Instructions) Opcode {
 		return RND
 	case 0xd:
 		return DRW
+	case 0xe:
+		lowbyte := ReadUint8(ins)
+		switch lowbyte {
+		case 0x9e:
+			return SKP
+		case 0xa1:
+			return SKNP
+		}
 	case 0xf:
 		lowbyte := ReadUint8(ins)
 		switch lowbyte {
 		case 0x07:
 			return LDVxDT
+		case 0x0a:
+			return LDK
 		case 0x15:
 			return LDDTVx
 		case 0x18:

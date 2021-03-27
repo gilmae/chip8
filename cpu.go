@@ -23,15 +23,17 @@ type cpu struct {
 	pc uint16 // Program counter
 	sp uint8  // stack pointer
 
-	d display
+	d        display
+	keyboard *keyboard
 }
 
-func NewCpu() *cpu {
+func NewCpu(k *keyboard) *cpu {
 	c := &cpu{
 		pc: 0x200, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
 		d:  NewDisplay(),
 	}
 	c.loadFont()
+	c.keyboard = k
 	return c
 }
 
@@ -211,6 +213,23 @@ func (c *cpu) Tick() error {
 	case LDF:
 		register := ReadHighByteNibble(ins)
 		c.I = uint16(font_start_addr + fontwidth*int(c.registers[register]))
+	case LDK:
+		register := ReadHighByteNibble(ins)
+		key := c.keyboard.readKey()
+
+		c.registers[register] = key
+	case SKP:
+		register := ReadHighByteNibble(ins)
+		key := c.keyboard.readKey()
+		if key == c.registers[register] {
+			c.pc += 2
+		}
+	case SKNP:
+		register := ReadHighByteNibble(ins)
+		key := c.keyboard.readKey()
+		if key != c.registers[register] {
+			c.pc += 2
+		}
 	}
 	return nil
 }
