@@ -215,19 +215,22 @@ func (c *cpu) Tick() error {
 		c.I = uint16(font_start_addr + fontwidth*int(c.registers[register]))
 	case LDK:
 		register := ReadHighByteNibble(ins)
-		key := c.keyboard.readKey()
-
-		c.registers[register] = key
+		key, ok := c.keyboard.readKey()
+		if !ok {
+			c.pc -= 2
+		} else {
+			c.registers[register] = key
+		}
 	case SKP:
 		register := ReadHighByteNibble(ins)
-		key := c.keyboard.readKey()
-		if key == c.registers[register] {
+		key, ok := c.keyboard.readKey()
+		if ok && key == c.registers[register] {
 			c.pc += 2
 		}
 	case SKNP:
 		register := ReadHighByteNibble(ins)
-		key := c.keyboard.readKey()
-		if key != c.registers[register] {
+		key, ok := c.keyboard.readKey()
+		if !ok || key != c.registers[register] {
 			c.pc += 2
 		}
 	}
