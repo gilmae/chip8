@@ -38,6 +38,13 @@ func NewCpu(k *keyboard) *cpu {
 }
 
 func (c *cpu) Tick() error {
+	if c.delay > 0 {
+		c.delay--
+	}
+	if c.sound > 0 {
+		c.sound--
+	}
+
 	ins := c.memory[c.pc : c.pc+2]
 	c.pc += 2
 	op := ParseOpcode(ins)
@@ -234,7 +241,24 @@ func (c *cpu) Tick() error {
 			c.pc += 2
 		}
 	}
+
+	if c.d.isDirty {
+		c.drawScreen()
+	}
+
+	if c.sound > 0 {
+		c.buzz()
+	}
+
 	return nil
+}
+
+func (c *cpu) buzz() {
+
+}
+
+func (c *cpu) drawScreen() {
+
 }
 
 func (c *cpu) loadFont() {
