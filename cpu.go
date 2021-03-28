@@ -1,12 +1,15 @@
 package chip8
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"math/rand"
 )
 
 const (
-	font_start_addr int = 0x50
+	font_start_addr    uint16 = 0x50
+	program_start_addr uint16 = 0x200
 )
 
 type cpu struct {
@@ -29,12 +32,21 @@ type cpu struct {
 
 func NewCpu(k *keyboard) *cpu {
 	c := &cpu{
-		pc: 0x200, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
+		pc: program_start_addr, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
 		d:  NewDisplay(),
 	}
 	c.loadFont()
 	c.keyboard = k
 	return c
+}
+
+func (c *cpu) LoadBytes(program []byte) (int, error) {
+	reader := bytes.NewReader(program)
+	return c.Load(reader)
+}
+
+func (c *cpu) Load(reader io.Reader) (int, error) {
+	return c.load(reader, program_start_addr)
 }
 
 func (c *cpu) Tick() error {
@@ -262,9 +274,18 @@ func (c *cpu) drawScreen() {
 }
 
 func (c *cpu) loadFont() {
-	for idx, fontbyte := range fontset {
-		c.memory[font_start_addr+idx] = fontbyte
+	reader := bytes.NewReader(fontset)
+	n, err := c.load(reader, font_start_addr)
+	if err != nil {
+		panic(err)
 	}
+	if n != len(fontset) {
+		panic("fontset loaded incorrectly")
+	}
+}
+
+func (c *cpu) load(reader io.Reader, offset uint16) (int, error) {
+	return reader.Read(c.memory[offset:])
 }
 
 func (c *cpu) pop() (uint16, error) {
