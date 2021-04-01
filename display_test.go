@@ -5,12 +5,8 @@ import "testing"
 func TestConstruction(t *testing.T) {
 	d := NewDisplay()
 
-	if len(d.pixels) != 32 {
-		t.Errorf("screen not high enough, want=%d, got=%d", 32, len(d.pixels))
-	}
-
-	if len(d.pixels[0]) != 64 {
-		t.Errorf("screen not wide enough, want=%d, got=%d", 64, len(d.pixels))
+	if len(d.pixels) != 64*32 {
+		t.Errorf("screen does not have enough pixels, want=%d, got=%d", 32*64, len(d.pixels))
 	}
 }
 
@@ -45,17 +41,20 @@ func TestDrawPixel(t *testing.T) {
 		for y, row := range tt.expectedPixels {
 			for _, x := range row {
 				total_expected_pixel_count++
-				if !d.pixels[tt.y+y][x] {
+				px, err := d.GetPixel(x, tt.y+y)
+				if err != nil {
+					t.Errorf("pixel at %d,%d could not be resolved, got %s", x, tt.y+y, err)
+				}
+
+				if !px {
 					t.Errorf("expected pixel %d,%d to be on", x, tt.y+y)
 				}
 			}
 		}
 
-		for y, row := range d.pixels {
-			for x, _ := range row {
-				if d.pixels[y][x] {
-					total_actual_pixel_count++
-				}
+		for _, px := range d.pixels {
+			if px {
+				total_actual_pixel_count++
 			}
 		}
 
@@ -91,11 +90,9 @@ func TestPixelsXored(t *testing.T) {
 	d.DrawSprite(input, 0, 0)
 
 	total_actual_pixel_count := 0
-	for y, row := range d.pixels {
-		for x, _ := range row {
-			if d.pixels[y][x] {
-				total_actual_pixel_count++
-			}
+	for _, px := range d.pixels {
+		if px {
+			total_actual_pixel_count++
 		}
 	}
 
@@ -111,11 +108,9 @@ func TestClear(t *testing.T) {
 	d.Clear()
 
 	total_actual_pixel_count := 0
-	for y, row := range d.pixels {
-		for x, _ := range row {
-			if d.pixels[y][x] {
-				total_actual_pixel_count++
-			}
+	for _, px := range d.pixels {
+		if px {
+			total_actual_pixel_count++
 		}
 	}
 
