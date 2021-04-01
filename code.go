@@ -258,10 +258,11 @@ func (ins Instructions) String() string {
 
 	i := 0
 	for i < len(ins) {
-		op := ParseOpcode(ins)
+		op := ParseOpcode(ins[i:])
 		def, err := Lookup(byte(op))
 
 		if err != nil {
+			i += 2
 			fmt.Fprintf(&out, "ERROR: %s\n", err)
 			continue
 		} else {
