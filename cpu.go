@@ -4,12 +4,19 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
+	"os"
+	"time"
 )
 
 const (
 	font_start_addr    uint16 = 0x50
 	program_start_addr uint16 = 0x200
+)
+
+var (
+	DefaultLogger = log.New(os.Stdout, "", 0)
 )
 
 type cpu struct {
@@ -28,15 +35,24 @@ type cpu struct {
 
 	d        display
 	keyboard *keyboard
+	logger   *log.Logger
+	clock    <-chan time.Time
+	stop     chan struct{}
+	r        Renderer
 }
 
-func NewCpu(k *keyboard) *cpu {
+func NewCpu(k *keyboard, r Renderer) *cpu {
 	c := &cpu{
-		pc: program_start_addr, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
-		d:  NewDisplay(),
+		pc:       program_start_addr, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
+		d:        NewDisplay(),
+		keyboard: k,
+		logger:   DefaultLogger,
+		clock:    time.Tick(time.Duration(60)),
+		stop:     make(chan struct{}),
+		r:        r,
 	}
 	c.loadFont()
-	c.keyboard = k
+
 	return c
 }
 
@@ -49,6 +65,24 @@ func (c *cpu) Load(reader io.Reader) (int, error) {
 	return c.load(reader, program_start_addr)
 }
 
+func (c *cpu) Run() error {
+	for {
+		select {
+		case <-c.stop:
+			return nil
+		case <-c.clock:
+			err := c.Tick()
+			if err != nil {
+				return err
+			}
+		}
+	}
+}
+
+func (c *cpu) Stop() {
+	close(c.stop)
+}
+
 func (c *cpu) Tick() error {
 	if c.delay > 0 {
 		c.delay--
@@ -58,6 +92,7 @@ func (c *cpu) Tick() error {
 	}
 
 	ins := c.memory[c.pc : c.pc+2]
+	c.logger.Println(Instructions(ins).String())
 	c.pc += 2
 	op := ParseOpcode(ins)
 
@@ -65,7 +100,7 @@ func (c *cpu) Tick() error {
 	case SYS:
 		// nothing, ignore
 	case CLS:
-		// clearDisplay
+		c.d.Clear()
 	case RET:
 		val, err := c.pop()
 		if err != nil {
@@ -231,7 +266,7 @@ func (c *cpu) Tick() error {
 		}
 	case LDF:
 		register := ReadHighByteNibble(ins)
-		c.I = uint16(font_start_addr + fontwidth*int(c.registers[register]))
+		c.I = uint16(font_start_addr + uint16(fontwidth)*uint16(c.registers[register]))
 	case LDK:
 		register := ReadHighByteNibble(ins)
 		key, ok := c.keyboard.readKey()
@@ -270,7 +305,6 @@ func (c *cpu) buzz() {
 }
 
 func (c *cpu) drawScreen() {
-
 }
 
 func (c *cpu) loadFont() {
