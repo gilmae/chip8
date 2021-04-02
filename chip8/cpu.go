@@ -41,7 +41,7 @@ type cpu struct {
 	r        Renderer
 }
 
-func NewCpu(k *keyboard, r Renderer) *cpu {
+func NewCpu(k *keyboard, r *renderer) *cpu {
 	c := &cpu{
 		pc:       program_start_addr, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
 		d:        NewDisplay(),
@@ -305,6 +305,7 @@ func (c *cpu) buzz() {
 }
 
 func (c *cpu) drawScreen() {
+	_ := c.r.Render(c.d)
 }
 
 func (c *cpu) loadFont() {
