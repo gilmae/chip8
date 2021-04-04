@@ -45,6 +45,15 @@ func (d *display) DrawSprite(pixel []byte, x int, y int) bool {
 	return collision_detected
 }
 
+func (d *display) EachPixel(fn func(x, y uint16, addr int)) {
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			a := d.addrOf(x, y)
+			fn(uint16(x), uint16(y), a)
+		}
+	}
+}
+
 func (d *display) GetPixel(x int, y int) (bool, error) {
 	px := d.addrOf(x, y)
 

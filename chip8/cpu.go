@@ -8,6 +8,8 @@ import (
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
@@ -16,7 +18,8 @@ const (
 )
 
 var (
-	DefaultLogger = log.New(os.Stdout, "", 0)
+	DefaultLogger     = log.New(os.Stdout, "", 0)
+	DefaultClockSpeed = time.Duration(1000 * time.Millisecond / 60) // 60 Hz
 )
 
 type cpu struct {
@@ -33,21 +36,22 @@ type cpu struct {
 	pc uint16 // Program counter
 	sp uint8  // stack pointer
 
-	d        display
+	d        *display
 	keyboard *keyboard
 	logger   *log.Logger
 	clock    <-chan time.Time
 	stop     chan struct{}
-	r        Renderer
+	r        renderer
 }
 
-func NewCpu(k *keyboard, r *renderer) *cpu {
+func NewCpu(k *keyboard, r renderer) *cpu {
+	d := NewDisplay()
 	c := &cpu{
 		pc:       program_start_addr, // First 512 bytes are "reserved" for the Chip-8 "interpreter"
-		d:        NewDisplay(),
+		d:        &d,
 		keyboard: k,
 		logger:   DefaultLogger,
-		clock:    time.Tick(time.Duration(60)),
+		clock:    time.Tick(DefaultClockSpeed),
 		stop:     make(chan struct{}),
 		r:        r,
 	}
@@ -296,7 +300,12 @@ func (c *cpu) Tick() error {
 	if c.sound > 0 {
 		c.buzz()
 	}
-
+	event := sdl.PollEvent()
+	switch event.(type) {
+	case *sdl.QuitEvent:
+		println("Quit")
+		c.Stop()
+	}
 	return nil
 }
 
@@ -305,7 +314,7 @@ func (c *cpu) buzz() {
 }
 
 func (c *cpu) drawScreen() {
-	_ := c.r.Render(c.d)
+	_ = c.r.Render(c.d)
 }
 
 func (c *cpu) loadFont() {

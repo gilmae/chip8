@@ -52,11 +52,11 @@ func TestDrawPixel(t *testing.T) {
 			}
 		}
 
-		for _, px := range d.pixels {
-			if px {
+		d.EachPixel(func(x, y uint16, addr int) {
+			if d.pixels[addr] {
 				total_actual_pixel_count++
 			}
-		}
+		})
 
 		if total_actual_pixel_count != total_expected_pixel_count {
 			t.Errorf("expected %d pixels on, got %d", total_expected_pixel_count, total_actual_pixel_count)
@@ -90,11 +90,12 @@ func TestPixelsXored(t *testing.T) {
 	d.DrawSprite(input, 0, 0)
 
 	total_actual_pixel_count := 0
-	for _, px := range d.pixels {
-		if px {
+
+	d.EachPixel(func(x, y uint16, addr int) {
+		if d.pixels[addr] {
 			total_actual_pixel_count++
 		}
-	}
+	})
 
 	if total_actual_pixel_count != 0 {
 		t.Errorf("expected %d pixels on, got %d", 0, total_actual_pixel_count)
