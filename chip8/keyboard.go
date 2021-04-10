@@ -1,14 +1,11 @@
 package chip8
 
-import (
-	"io"
-)
-
 type keyboard struct {
 	buffer  []byte
-	input   io.Reader
 	mapping map[rune]byte
 }
+
+const buffer_size int = 8
 
 var default_mapping = map[rune]byte{
 	'1': 0x1,
@@ -29,25 +26,30 @@ var default_mapping = map[rune]byte{
 	'v': 0xf,
 }
 
-func NewKeyboard(input io.Reader) *keyboard {
-	return &keyboard{buffer: make([]byte, 1), input: input, mapping: default_mapping}
+func NewKeyboard() *keyboard {
+	return &keyboard{buffer: make([]byte, 0), mapping: default_mapping}
+}
+
+func (k *keyboard) addToBuffer(keys []byte) {
+	tmp := append(k.buffer, keys...)
+	if len(tmp) > buffer_size {
+		tmp = tmp[len(tmp)-buffer_size:]
+	}
+
+	k.buffer = tmp
 }
 
 func (k *keyboard) readKey() (byte, bool) {
-	n, err := k.input.Read(k.buffer)
-
-	if err == io.EOF {
+	if len(k.buffer) < 1 {
 		return 0, false
-	}
-	if err != nil {
-		panic(err)
-	}
-
-	if n != 1 {
-		panic("wrong number of bytes read")
 	}
 
 	ch := rune(k.buffer[0])
+	if len(k.buffer) == 1 {
+		k.buffer = []byte{}
+	} else {
+		k.buffer = k.buffer[1:]
+	}
 
 	b, ok := k.mapping[ch]
 

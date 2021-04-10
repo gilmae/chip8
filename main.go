@@ -42,7 +42,7 @@ func main() {
 
 	defer renderer.Close()
 
-	keyboard := chip8.NewKeyboard(os.Stdin)
+	keyboard := chip8.NewKeyboard()
 	cpu := chip8.NewCpu(keyboard, renderer)
 
 	if len(os.Args) < 2 {

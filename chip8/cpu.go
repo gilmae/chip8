@@ -301,10 +301,14 @@ func (c *cpu) Tick() error {
 		c.buzz()
 	}
 	event := sdl.PollEvent()
-	switch event.(type) {
+	switch t := event.(type) {
 	case *sdl.QuitEvent:
 		println("Quit")
 		c.Stop()
+	case *sdl.KeyboardEvent:
+		keyCode := rune(t.Keysym.Sym)
+		c.keyboard.addToBuffer([]byte{byte(keyCode)})
+		c.logger.Println(keyCode)
 	}
 	return nil
 }

@@ -1,7 +1,6 @@
 package chip8
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -109,8 +108,8 @@ func TestReadKey(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		input := strings.NewReader(tt.input)
-		k := NewKeyboard(input)
+		k := NewKeyboard()
+		k.addToBuffer([]byte(tt.input))
 
 		actualOutput, ok := k.readKey()
 
