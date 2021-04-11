@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	winHeight = 320
-	winWidth  = 640
+	winHeight int32 = 320
+	winWidth  int32 = 640
 )
 
 func main() {
@@ -32,13 +32,25 @@ func main() {
 	}
 	defer window.Destroy()
 
-	surface, err := window.GetSurface()
+	r, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		panic(err)
 	}
-	surface.FillRect(nil, 0)
 
-	renderer := chip8.NewSdlRenderer(10, window, surface)
+	defer r.Destroy()
+
+	tex, err := r.CreateTexture(sdl.PIXELFORMAT_ABGR8888, sdl.TEXTUREACCESS_STATIC, int32(winWidth), int32(winHeight))
+	if err != nil {
+		panic(err)
+	}
+	defer tex.Destroy()
+	// surface, err := window.GetSurface()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// surface.FillRect(nil, 0)
+
+	renderer := chip8.NewSdlRenderer(int32(winWidth), winHeight, window, r, tex)
 
 	defer renderer.Close()
 
