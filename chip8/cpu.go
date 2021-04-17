@@ -19,7 +19,7 @@ const (
 
 var (
 	DefaultLogger     = log.New(os.Stdout, "", 0)
-	DefaultClockSpeed = time.Duration(1000 * time.Millisecond / 60) // 60 Hz
+	DefaultClockSpeed = time.Duration(time.Second / 60) // 60 Hz
 )
 
 type cpu struct {
@@ -273,7 +273,7 @@ func (c *cpu) Tick() error {
 		c.I = uint16(font_start_addr + uint16(fontwidth)*uint16(c.registers[register]))
 	case LDK:
 		register := ReadHighByteNibble(ins)
-		key, ok := c.keyboard.readKey()
+		key, ok := c.keyboard.pop()
 		if !ok {
 			c.pc -= 2
 		} else {
@@ -281,13 +281,13 @@ func (c *cpu) Tick() error {
 		}
 	case SKP:
 		register := ReadHighByteNibble(ins)
-		key, ok := c.keyboard.readKey()
+		key, ok := c.keyboard.popIfIs(c.registers[register])
 		if ok && key == c.registers[register] {
 			c.pc += 2
 		}
 	case SKNP:
 		register := ReadHighByteNibble(ins)
-		key, ok := c.keyboard.readKey()
+		key, ok := c.keyboard.popIfIs(c.registers[register])
 		if !ok || key != c.registers[register] {
 			c.pc += 2
 		}
@@ -295,6 +295,7 @@ func (c *cpu) Tick() error {
 
 	if c.d.isDirty {
 		c.drawScreen()
+		c.d.isDirty = false
 	}
 
 	if c.sound > 0 {
@@ -307,7 +308,7 @@ func (c *cpu) Tick() error {
 		c.Stop()
 	case *sdl.KeyboardEvent:
 		keyCode := rune(t.Keysym.Sym)
-		c.keyboard.addToBuffer([]byte{byte(keyCode)})
+		c.keyboard.push([]byte{byte(keyCode)})
 		c.logger.Println(keyCode)
 	}
 	return nil

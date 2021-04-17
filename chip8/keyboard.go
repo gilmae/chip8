@@ -30,7 +30,7 @@ func NewKeyboard() *keyboard {
 	return &keyboard{buffer: make([]byte, 0), mapping: default_mapping}
 }
 
-func (k *keyboard) addToBuffer(keys []byte) {
+func (k *keyboard) push(keys []byte) {
 	tmp := append(k.buffer, keys...)
 	if len(tmp) > buffer_size {
 		tmp = tmp[len(tmp)-buffer_size:]
@@ -39,7 +39,35 @@ func (k *keyboard) addToBuffer(keys []byte) {
 	k.buffer = tmp
 }
 
-func (k *keyboard) readKey() (byte, bool) {
+func (k *keyboard) popIfIs(key byte) (byte, bool) {
+	if len(k.buffer) < 1 {
+		return 0, false
+	}
+
+	ch := rune(k.buffer[0])
+
+	keyPressed, ok := k.mapping[ch]
+	if !ok {
+		return 0, false
+	}
+
+	if keyPressed == key {
+		if len(k.buffer) == 1 {
+			k.buffer = []byte{}
+		} else {
+			k.buffer = k.buffer[1:]
+		}
+
+		if !ok {
+			return 0, false
+		}
+		return keyPressed, true
+	}
+
+	return 0, false
+}
+
+func (k *keyboard) pop() (byte, bool) {
 	if len(k.buffer) < 1 {
 		return 0, false
 	}
@@ -54,7 +82,7 @@ func (k *keyboard) readKey() (byte, bool) {
 	b, ok := k.mapping[ch]
 
 	if !ok {
-		return k.readKey()
+		return k.pop()
 	}
 
 	return b, true

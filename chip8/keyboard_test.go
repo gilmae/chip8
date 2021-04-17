@@ -109,9 +109,9 @@ func TestReadKey(t *testing.T) {
 
 	for _, tt := range tests {
 		k := NewKeyboard()
-		k.addToBuffer([]byte(tt.input))
+		k.push([]byte(tt.input))
 
-		actualOutput, ok := k.readKey()
+		actualOutput, ok := k.pop()
 
 		if ok != tt.expectedOk {
 			t.Errorf("unexpected read result, want=%t, got=%t", tt.expectedOk, ok)
