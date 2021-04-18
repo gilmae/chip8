@@ -86,29 +86,20 @@ func (s *sdlRenderer) Close() {
 }
 
 func (s *sdlRenderer) Render(d *display) error {
-	// s.surface.FillRect(nil, 0)
-	// d.EachPixel(func(x, y uint16, addr int) {
-	// 	if d.pixels[addr] {
-	// 		rect := sdl.Rect{X: int32(x) * s.scale, Y: int32(y) * s.scale, W: s.scale, H: s.scale}
-	// 		s.surface.FillRect(&rect, 0xffffffff)
-	// 	}
-
-	// })
-	// s.window.UpdateSurface()
-	pixels := make([]byte, s.height*s.width*4)
+	pixels := make([]byte, d.height*d.width*4)
 	d.EachPixel(func(x, y uint16, addr int) {
 		index := (int(y)*d.width + int(x)) * 4
-		if index < len(d.pixels)-4 && index >= 0 {
-			if d.pixels[index] {
+		if index < len(pixels)-4 && index >= 0 {
+			if d.pixels[addr] {
 
 				pixels[index] = 0xff
 				pixels[index+1] = 0xff
 				pixels[index+2] = 0xff
-				pixels[index+3] = 0xff
+
 			}
 		}
 	})
-	s.texture.Update(nil, pixels, width*4)
+	s.texture.Update(nil, pixels, int(d.width)*4)
 	src := sdl.Rect{0, 0, int32(d.width), int32(d.height)}
 	dst := sdl.Rect{0, 0, s.width, s.height}
 	s.renderer.Clear()
