@@ -5,7 +5,7 @@ type keyboard struct {
 	mapping map[rune]byte
 }
 
-const buffer_size int = 8
+const buffer_size int = 1
 
 var default_mapping = map[rune]byte{
 	'1': 0x1,
