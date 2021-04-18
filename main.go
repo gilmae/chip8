@@ -21,7 +21,7 @@ func main() {
 	}
 	defer sdl.Quit()
 
-	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "1")
+	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
 	window, err := sdl.CreateWindow("Chip-8", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, winWidth, winHeight, sdl.WINDOW_SHOWN)
 	if err != nil {

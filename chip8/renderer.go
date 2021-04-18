@@ -70,8 +70,7 @@ func (n *nullRenderer) Render(d *display) error {
 // }
 
 type sdlRenderer struct {
-	window *sdl.Window
-	//surface *sdl.Surface
+	window        *sdl.Window
 	renderer      *sdl.Renderer
 	texture       *sdl.Texture
 	width, height int32
