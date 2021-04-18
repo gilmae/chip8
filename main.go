@@ -10,35 +10,39 @@ import (
 )
 
 var (
-	winHeight = 320
-	winWidth  = 640
+	winHeight int32 = 32 * 10
+	winWidth  int32 = 64 * 10
 )
 
 func main() {
-	//renderer := chip8.NewNullRenderer()
-	//renderer, err := chip8.NewTermboxRenderer(termbox.ColorWhite, termbox.ColorBlack)
-
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		panic(err)
 	}
 	defer sdl.Quit()
 
-	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "1")
+	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "0")
 
-	window, err := sdl.CreateWindow("Chip-8", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(winWidth), int32(winHeight), sdl.WINDOW_SHOWN)
+	window, err := sdl.CreateWindow("Chip-8", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, winWidth, winHeight, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
 	}
 	defer window.Destroy()
 
-	surface, err := window.GetSurface()
+	r, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		panic(err)
 	}
-	surface.FillRect(nil, 0)
 
-	renderer := chip8.NewSdlRenderer(10, window, surface)
+	defer r.Destroy()
+
+	tex, err := r.CreateTexture(sdl.PIXELFORMAT_ABGR8888, sdl.TEXTUREACCESS_STATIC, winWidth, winHeight)
+	if err != nil {
+		panic(err)
+	}
+	defer tex.Destroy()
+
+	renderer := chip8.NewSdlRenderer(winWidth, winHeight, window, r, tex)
 
 	defer renderer.Close()
 

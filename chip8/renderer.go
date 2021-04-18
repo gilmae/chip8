@@ -70,13 +70,14 @@ func (n *nullRenderer) Render(d *display) error {
 // }
 
 type sdlRenderer struct {
-	window  *sdl.Window
-	surface *sdl.Surface
-	scale   int32
+	window        *sdl.Window
+	renderer      *sdl.Renderer
+	texture       *sdl.Texture
+	width, height int32
 }
 
-func NewSdlRenderer(scale int32, w *sdl.Window, surface *sdl.Surface) *sdlRenderer {
-	return &sdlRenderer{scale: scale, window: w, surface: surface}
+func NewSdlRenderer(width, height int32, w *sdl.Window, renderer *sdl.Renderer, texture *sdl.Texture) *sdlRenderer {
+	return &sdlRenderer{width: width, height: height, window: w, renderer: renderer, texture: texture}
 }
 
 func (s *sdlRenderer) Close() {
@@ -84,15 +85,25 @@ func (s *sdlRenderer) Close() {
 }
 
 func (s *sdlRenderer) Render(d *display) error {
-	s.surface.FillRect(nil, 0)
+	pixels := make([]byte, d.height*d.width*4)
 	d.EachPixel(func(x, y uint16, addr int) {
-		if d.pixels[addr] {
-			rect := sdl.Rect{X: int32(x) * s.scale, Y: int32(y) * s.scale, W: s.scale, H: s.scale}
-			s.surface.FillRect(&rect, 0xffffffff)
-		}
+		index := (int(y)*d.width + int(x)) * 4
+		if index < len(pixels)-4 && index >= 0 {
+			if d.pixels[addr] {
 
+				pixels[index] = 0xff
+				pixels[index+1] = 0xff
+				pixels[index+2] = 0xff
+
+			}
+		}
 	})
-	s.window.UpdateSurface()
+	s.texture.Update(nil, pixels, int(d.width)*4)
+	src := sdl.Rect{0, 0, int32(d.width), int32(d.height)}
+	dst := sdl.Rect{0, 0, s.width, s.height}
+	s.renderer.Clear()
+	s.renderer.Copy(s.texture, &src, &dst)
+	s.renderer.Present()
 
 	return nil
 }

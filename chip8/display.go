@@ -8,12 +8,13 @@ const (
 )
 
 type display struct {
-	pixels  []bool
-	isDirty bool
+	pixels        []bool
+	isDirty       bool
+	width, height int
 }
 
 func NewDisplay() display {
-	d := display{}
+	d := display{width: width, height: height}
 	d.Clear()
 	return d
 }
